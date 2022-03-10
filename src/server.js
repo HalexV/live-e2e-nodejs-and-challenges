@@ -8,40 +8,51 @@ import {
   randomUUID
 } from 'crypto'
 
-const Database = new Map()
+class Server {
+  constructor() {
+    this.database = new Map()
+  }
 
-function respondJSON(data, response) {
-  return response.end(JSON.stringify(data))
+ respondJSON(data, response) {
+    return response.end(JSON.stringify(data))
+  }
+  
+  async handler(request, response) {
+    const {
+      method
+    } = request
+  
+    if (method === 'GET') {
+  
+      return this.respondJSON([...this.database.values()], response)
+    }
+  
+    if (method === 'POST') {
+      const body = JSON.parse(await once(request, 'data'))
+      console.log('recebido', body)
+      const id = randomUUID()
+      this.database.set(id, body)
+  
+      return this.respondJSON({
+        ok: 1
+      }, response)
+    }
+  
+    if (method === 'DELETE') {
+      this.database.clear()
+      return this.respondJSON({
+        ok: 1
+      }, response);
+    }
+  }
+
+  getServer() {
+    return createServer(this.handler.bind(this))
+  }
 }
 
-async function handler(request, response) {
-  const {
-    method
-  } = request
-
-  if (method === 'GET') {
-
-    return respondJSON([...Database.values()], response)
-  }
-
-  if (method === 'POST') {
-    const body = JSON.parse(await once(request, 'data'))
-    console.log('recebido', body)
-    const id = randomUUID()
-    Database.set(id, body)
-
-    return respondJSON({
-      ok: 1
-    }, response)
-  }
-
-  if (method === 'DELETE') {
-    Database.clear()
-    return respondJSON({
-      ok: 1
-    }, response);
-  }
-}
 
 
-export default createServer(handler)
+
+
+export default Server

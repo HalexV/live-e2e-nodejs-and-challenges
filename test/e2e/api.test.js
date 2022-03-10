@@ -17,7 +17,7 @@ https://youtu.be/hQB139HP3GE
 describe('API E2E Test Suite', () => {
   
   test('POST /  - should save an item and return ok', async () => {
-    const response = await superTest(Server)
+    const response = await superTest((new Server()).getServer())
       .post('/')
       .send({
         nome: 'erickwendel',
@@ -28,7 +28,7 @@ describe('API E2E Test Suite', () => {
   })
 
   test('GET /  - should return an array', async () => {
-    const response = await superTest(Server)
+    const response = await superTest((new Server()).getServer())
       .get('/')
 
     const data = JSON.parse(response.text)
